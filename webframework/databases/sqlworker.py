@@ -13,5 +13,10 @@ class SQLWorker:
 
 
 class SQLiteWorker(SQLWorker):
-    def __init__(self, filename):
-        pass
+    def __init__(self, filename='sqlite.db'):
+        self.conn = sqlite3.connect(filename)
+# try:
+#     with con:
+#         con.execute("insert into person(firstname) values (?)", ("Joe",))
+# except sqlite3.IntegrityError:
+#     print "couldn't add Joe twice"
