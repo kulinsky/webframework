@@ -41,7 +41,13 @@ class SQLiteWorker(SQLWorker):
         return data
 
     def update(self, query, params={}):
-        pass
+        try:
+            with closing(self.conn.cursor()) as cursor:
+                cursor.execute(query, params)
+                self.conn.commit()
+            return data
+        except sqlite3.IntegrityError:
+            print("couldn't insert ", *params.items())
 
     def delete(self, query, params={}):
         pass
