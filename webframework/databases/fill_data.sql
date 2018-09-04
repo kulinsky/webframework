@@ -3,7 +3,7 @@ CREATE TABLE "users" (
 	`id`	INTEGER PRIMARY KEY AUTOINCREMENT UNIQUE,
 	`last_name`	TEXT NOT NULL,
 	`first_name`	TEXT NOT NULL,
-	`midle_name`	TEXT,
+	`middle_name`	TEXT,
 	`phone`	TEXT,
 	`email`	TEXT,
 	`city_id`	INTEGER,
