@@ -20,10 +20,33 @@ def comment(request):
     template = 'comment.html'
 
     if request.method == 'POST':
-        print(request.POST)
+        firstname = request.POST.get('firstname', '')
+        lastname = request.POST.get('lastname', '')
+        middlename = request.POST.get('middlename', '')
+        phone = request.POST.get('phone', '')
+        email = request.POST.get('email', '')
+        comment_text = request.POST.get('subject', '')
+
+        try:
+            city_id = int(request.POST.get('city_id'))
+        except TypeError:
+            city_id = -1
+
+        query = """INSERT INTO users(last_name, first_name,\
+        middle_name, phone, email, city_id) VALUES(?,?,?,?,?,?)"""
+
+        params = (lastname, firstname, middlename, phone, email, city_id)
+        app.sql(query, params)
+
+        user_id = app.sql('SELECT * FROM users ORDER BY id DESC LIMIT 1;')[0][0]
+
+        query = """INSERT INTO comments(text, user_id) VALUES(?,?)"""
+        params = (comment_text, user_id)
+        app.sql(query, params)
+
         redirect = Response(status="302 Found")
         redirect.headers["Location"] = "/"
-        return
+        return redirect
 
     with open('{}{}'.format(TEMPLATE_DIR, template)) as f:
         html = f.read()
@@ -38,7 +61,6 @@ def get_regions(request):
     response = Response(body=body.encode())
     response.headers['Content-Type'] = 'application/json'
     return response
-    #return Response(body=body.encode(), content_type='application/json')
 
 
 @app.route('^/api/get/cities/byregion/([0-9]+)/?$')
