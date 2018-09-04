@@ -27,7 +27,7 @@ class Request:
 
 
 class Response:
-    def __init__(self, status='200 OK', body='', content_type ='text/html'):
+    def __init__(self, status='200 OK', body='', content_type='text/html'):
         self.status = status
         self.body = body
         self.headers = {
