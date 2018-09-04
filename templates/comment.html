@@ -1,44 +1,175 @@
+<!DOCTYPE html>
 <html>
-  <head>
-    <title>Comment add</title>
-  </head>
 
-  <body>
-    <form action="/comment/" method="post">
-      <input type="text" name="name">
-      <select id="region" name="region" onchange="onRegionChange()"></select>
-      <input type="submit"/>
-    </form>
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta charset="utf-8">
+    <style>
+        body {
+            font-family: Arial, Helvetica, sans-serif;
+        }
 
+        * {
+            box-sizing: border-box;
+        }
+
+        input[type=text],
+        select,
+        textarea {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+            margin-top: 6px;
+            margin-bottom: 16px;
+            resize: vertical;
+        }
+
+        input[type=submit] {
+            background-color: #4CAF50;
+            color: white;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        input[type=submit]:hover {
+            background-color: #45a049;
+        }
+
+        .container {
+            border-radius: 5px;
+            background-color: #f2f2f2;
+            padding: 20px;
+        }
+
+        .inner {
+            width: 70%;
+            margin: 0 auto;
+        }
+
+        .wrapper {
+            display: flex;
+        }
+
+        .wrapper > div {
+            /* font-size: 4vh; */
+            color: white;
+            background: black;
+            margin: .1em;
+            padding-left: 1em;
+            /* border-radius: 3px; */
+            flex: 1;
+        }
+
+        .menu {
+            padding: 1em;
+        }
+
+        .menu > a {
+            color: white;
+            text-decoration: none;
+            padding-left: 1em;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="wrapper">
+        <div class="menu">
+            <a href="/">Contact Form</a>
+            <a href="/">Contact Form</a>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="inner">
+            <form action="/action_page.php">
+                <label for="fname">Фамилия</label>
+                <input type="text" id="lname" name="lastname" placeholder="Фамилия..">
+
+                <label for="lname">Имя</label>
+                <input type="text" id="fname" name="firstname" placeholder="Имя..">
+
+                <label for="lname">Отчество</label>
+                <input type="text" id="mname" name="middlename" placeholder="Отчество..">
+
+                <label for="region">Регион</label>
+                <select id="region" name="region_id" onchange="region_onchange()">
+                </select>
+
+                <label for="city">Город</label>
+                <select id="city" name="city_id">
+                </select>
+
+                <label for="phone">Контактный телефон</label>
+                <input type="text" id="phone" name="phone" placeholder="(9999) 999-99-99">
+
+                <label for="email">Отчество</label>
+                <input type="text" id="email" name="email" placeholder="email@mail.com">
+
+                <label for="subject">Комментарий</label>
+                <textarea id="subject" name="subject" placeholder="Оставьте комментарий.." style="height:100px"></textarea>
+
+                <input type="submit" value="Отправить">
+            </form>
+        </div>
+    </div>
 
     <script>
-      var onRegionChange = function(self) {
-        console.log(self);
-      }
+        var region_onchange = function() {
+            var el = document.getElementById("region");
+            var region_id = el.options[el.selectedIndex].value;
+            fill_cities(region_id);
+        }
 
-      window.onload = function() {
+        var fill_cities = function(region_id) {
+            var xhttp = new XMLHttpRequest();
+            xhttp.responseType = "json";
+            xhttp.onreadystatechange = function() {
+                if (this.readyState == 4 && this.status == 200) {
+                    document.getElementById('city').innerHTML = "";
+                    var data = this.response;
+                    for (var i in data) {
+                        var html = '<option value=' + i + '>' + data[i] + '</option>';
+                        document.getElementById('city').innerHTML += html;
+                    }
+                }
+            };
+            xhttp.open("GET", "/api/get/cities/byregion/" + region_id, true);
+            xhttp.send();
+        }
 
-        console.log('page loaded');
+        var fill_regions = function() {
+            xhttp = new XMLHttpRequest();
+            xhttp.responseType = 'json';
+            xhttp.onreadystatechange = function() {
+                if (this.readyState == 4 && this.status == 200) {
+                    var data = this.response;
+                    for (var i in data) {
+                        var html = '<option value=' + i + '>' + data[i] + '</option>';
+                        document.getElementById('region').innerHTML += html;
+                    }
+                    var el = document.getElementById("region");
+                    var region_id = el.options[el.selectedIndex].value;
+                    fill_cities(region_id);
+                }
+            };
+            xhttp.open('GET', '/api/get/regions/', true);
+            xhttp.send();
+        }
 
-        xhttp = new XMLHttpRequest();
-        xhttp.responseType = 'json';
-        xhttp.onreadystatechange = function() {
-          if (this.readyState == 4 && this.status == 200) {
-            var data = this.response;
-            for(var i in data) {
-              var html = '<option value=' + i + '>' + data[i] + '</option>';
-              document.getElementById('region').innerHTML += html;
-            }
-          }
-        };
-        xhttp.open('GET', '/api/get/regions/', true);
-        xhttp.send();
+        window.onload = function() {
 
+            console.log('page loaded');
 
+            fill_regions();
 
-      }
+        }
     </script>
-
-  </body>
+</body>
 
 </html>
