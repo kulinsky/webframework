@@ -22,12 +22,12 @@ class Request:
             except ValueError:
                 content_length = 0
 
-            query_string = environ["wsgi.input"].read(content_length)
-            self.POST = parse_qs(query_string.decode())
+            qs = environ["wsgi.input"].read(content_length)
+            self.POST = {k:v[0] for k,v in parse_qs(qs.decode()).items()}
 
 
 class Response:
-    def __init__(self, status='200 OK', body=''):
+    def __init__(self, status='200 OK', body=b''):
         self.status = status
         self.body = body
         self.headers = {
