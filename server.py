@@ -8,6 +8,8 @@ app = WebFramework()
 
 @app.route("^/$")
 def home(request):
+    data = app.db_read('select * from cities')
+    print(data)
     return Response(body="Home".encode())
 
 
