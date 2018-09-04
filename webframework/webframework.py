@@ -1,8 +1,9 @@
 import sys
 import re
 import traceback
-
 from urllib.parse import parse_qs
+
+from .databases.sqlworker import SQLWorker, SQLiteWorker
 
 
 class Request:
@@ -40,8 +41,12 @@ class Response:
 
 
 class WebFramework:
-    def __init__(self):
+    def __init__(self, sqlworker=None):
         self.routes = {}
+        self._sqlworker = sqlworker or SQLiteWorker()
+
+        if not isinstance(self._sqlworker, SQLWorker):
+            raise ValueError('bad sqlworker instance', sqlworker)
 
     def __call__(self, environ, start_response):
         response = self.dispatch(Request(environ))
@@ -52,7 +57,6 @@ class WebFramework:
         def route_decorator(fn):
             self.routes[route_regex] = fn
             return fn
-
         return route_decorator
 
     @staticmethod
@@ -80,5 +84,7 @@ class WebFramework:
                     exc_type, exc_value, exc_traceback = sys.exc_info()
                     traceback.print_tb(exc_traceback)
                     return self.internal_error()
-
         return self.not_found()
+
+    def db_read(self, query):
+        return self._sqlworker.read(query)
