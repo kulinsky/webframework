@@ -23,16 +23,16 @@ class Request:
                 content_length = 0
 
             query_string = environ["wsgi.input"].read(content_length)
-            self.POST = str(query_string)
+            self.POST = parse_qs(query_string.decode())
 
 
 class Response:
-    def __init__(self, status="200 OK", body=""):
+    def __init__(self, status='200 OK', body='', content_type ='text/html'):
         self.status = status
         self.body = body
         self.headers = {
-            "Content-Type": "text/html",
-            "Content-Length": str(len(self.body))
+            'Content-Type': content_type,
+            'Content-Length': str(len(self.body))
         }
 
     @property
