@@ -12,12 +12,10 @@ app = WebFramework()
 
 @app.route('^/$')
 def home(request):
-    data = app.sql('select * from cities')
-    print(data)
     return Response(body='Home'.encode())
 
 
-@app.route('^/comment/')
+@app.route('^/comment/?$')
 def comment(request):
     template = 'comment.html'
 
@@ -29,11 +27,21 @@ def comment(request):
     return Response(body=html.encode())
 
 
-@app.route('^/api/get/regions/')
+@app.route('^/api/get/regions/?$')
 def get_regions(request):
     query = 'SELECT id, name FROM regions WHERE deleted=0'
     regions = app.sql(query)
     body = json.dumps(dict(regions), ensure_ascii=False)
+    return Response(body=body.encode(), content_type='application/json')
+
+
+@app.route('^/api/get/cities/byregion/([0-9]+)/?$')
+def get_cities_by_region(request):
+    region_id = request.params[0]
+    query = 'SELECT id, name FROM cities WHERE region_id=? AND deleted=0'
+    params = (region_id,)
+    cities = app.sql(query, params)
+    body = json.dumps(dict(cities), ensure_ascii=False)
     return Response(body=body.encode(), content_type='application/json')
 
 
