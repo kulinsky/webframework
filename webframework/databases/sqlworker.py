@@ -30,8 +30,10 @@ class SQLiteWorker(SQLWorker):
             with closing(self.conn.cursor()) as cursor:
                 cursor.execute(query, params)
                 self.conn.commit()
+                return cursor.fetchall()
         except sqlite3.IntegrityError:
             print("Error with ", query)
+        return None
 
     def create(self, query, params={}):
         pass
