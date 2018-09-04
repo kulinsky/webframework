@@ -88,3 +88,6 @@ class WebFramework:
 
     def db_read(self, query):
         return self._sqlworker.read(query)
+
+    def sql(self, query, params={}):
+        return self._sqlworker.sql(query, params)
