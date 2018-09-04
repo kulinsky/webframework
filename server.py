@@ -21,6 +21,9 @@ def comment(request):
 
     if request.method == 'POST':
         print(request.POST)
+        redirect = Response(status="302 Found")
+        redirect.headers["Location"] = "/"
+        return
 
     with open('{}{}'.format(TEMPLATE_DIR, template)) as f:
         html = f.read()
@@ -32,7 +35,10 @@ def get_regions(request):
     query = 'SELECT id, name FROM regions WHERE deleted=0'
     regions = app.sql(query)
     body = json.dumps(dict(regions), ensure_ascii=False)
-    return Response(body=body.encode(), content_type='application/json')
+    response = Response(body=body.encode())
+    response.headers['Content-Type'] = 'application/json'
+    return response
+    #return Response(body=body.encode(), content_type='application/json')
 
 
 @app.route('^/api/get/cities/byregion/([0-9]+)/?$')
@@ -42,7 +48,9 @@ def get_cities_by_region(request):
     params = (region_id,)
     cities = app.sql(query, params)
     body = json.dumps(dict(cities), ensure_ascii=False)
-    return Response(body=body.encode(), content_type='application/json')
+    response = Response(body=body.encode())
+    response.headers['Content-Type'] = 'application/json'
+    return response
 
 
 if __name__ == '__main__':

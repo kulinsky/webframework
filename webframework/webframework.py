@@ -27,11 +27,11 @@ class Request:
 
 
 class Response:
-    def __init__(self, status='200 OK', body='', content_type='text/html'):
+    def __init__(self, status='200 OK', body=''):
         self.status = status
         self.body = body
         self.headers = {
-            'Content-Type': content_type,
+            'Content-Type': 'text/html',
             'Content-Length': str(len(self.body))
         }
 
