@@ -5,7 +5,10 @@ from abc import ABC, abstractmethod
 class SQLWorker(ABC):
     @abstractmethod
     def sql(self):
-        raise NotImplementedError('users must define create')
+        """ return tuple(status, list of tuples of values)
+        status: 1 - success, 0 - fail
+        ex.: (1, [('user1','city1'),('user2','city2')] ) """
+        pass
 
 
 class SQLiteWorker(SQLWorker):
@@ -18,21 +21,7 @@ class SQLiteWorker(SQLWorker):
             with closing(self.conn.cursor()) as cursor:
                 cursor.execute(query, params)
                 self.conn.commit()
-                return cursor.fetchall()
+                return cursor.rowcount, cursor.fetchall()
         except sqlite3.IntegrityError as e:
             print(e)
         return None
-
-    def update(self, query, params):
-        """ return 1 if update seccessful or 0 if not"""
-        try:
-            with closing(self.conn.cursor()) as cursor:
-                cursor.execute(query, params)
-                self.conn.commit()
-                return cursor.rowcount
-        except sqlite3.IntegrityError as e:
-            print(e)
-        return None
-
-    def close(self):
-        self.conn.close()
