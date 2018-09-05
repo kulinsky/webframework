@@ -96,13 +96,13 @@ def api_get_comments(request):
 
     if with_names:
         try:
-            with_names = int(with_names[0])
+            with_names = int(with_names)
         except ValueError:
             check_variables = False
 
     if deleted:
         try:
-            deleted = int(deleted[0])
+            deleted = int(deleted)
         except ValueError:
             check_variables = False
 
@@ -112,11 +112,10 @@ def api_get_comments(request):
             body=b"400 Bad Request."
         )
 
-
     if with_names:
         query = (
-            "SELECT c.id, c.text, c.timestamp, u.first_name, u.last_name" +
-            " FROM (SELECT * FROM comments WHERE deleted=?) c" +
+            "SELECT c.id, c.text, c.timestamp, u.first_name, u.last_name"
+            " FROM (SELECT * FROM comments WHERE deleted=?) c"
             " LEFT JOIN users u ON c.user_id=u.id;"
         )
     else:
@@ -146,14 +145,27 @@ def api_delete_comments(request):
             return bad_request  # RETURN 500
 
         try:
-            comment_id = int(comment_id[0])
+            comment_id = int(comment_id)
         except ValueError:
             return bad_request  # RETURN 500
 
+        # find user_id and mark as deleted user
+        query = "SELECT user_id FROM comments WHERE id=?"
+        params = (comment_id,)
+        print(query, params)
+        user_id = app.sql(query, params)[1][0][0]
+
+        # mark comment as deleted
         query = "UPDATE comments SET deleted=1 WHERE id=?"
         params = (comment_id,)
-        result = app.sql(query, params)[0]
-        body = json.dumps({'success': bool(result)})
+        res_c = app.sql(query, params)[0]
+
+        # mark user as deleted
+        query = "UPDATE users SET deleted=1 WHERE id=?"
+        params = (user_id,)
+        res_u = app.sql(query, params)[0]
+
+        body = json.dumps({'success': bool(res_c and res_u)})
         response = Response(body=body.encode())
         response.headers['Content-Type'] = 'application/json'
         return response
@@ -174,7 +186,7 @@ def api_delete_comments(request):
             return bad_request  # RETURN 500
 
         try:
-            comment_id = int(comment_id[0])
+            comment_id = int(comment_id)
         except ValueError:
             return bad_request  # RETURN 500
 
