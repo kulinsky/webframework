@@ -88,6 +88,3 @@ class WebFramework:
 
     def sql(self, query, params={}):
         return self._sqlworker.sql(query, params)
-
-    def sql_update(self, query, params={})):
-        return self._sqlworker.update(query, params)
