@@ -23,5 +23,16 @@ class SQLiteWorker(SQLWorker):
             print(e)
         return None
 
+    def update(self, query, params):
+        """ return 1 if update seccessful or 0 if not"""
+        try:
+            with closing(self.conn.cursor()) as cursor:
+                cursor.execute(query, params)
+                self.conn.commit()
+                return cursor.rowcount
+        except sqlite3.IntegrityError as e:
+            print(e)
+        return None
+
     def close(self):
         self.conn.close()
