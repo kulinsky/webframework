@@ -1,5 +1,6 @@
 import os
 import json
+import datetime
 from wsgiref.simple_server import make_server
 
 from webframework.webframework import WebFramework, Response
@@ -20,28 +21,32 @@ def comment(request):
     template = 'comment.html'
 
     if request.method == 'POST':
-        firstname = request.POST.get('firstname', '')
-        lastname = request.POST.get('lastname', '')
-        middlename = request.POST.get('middlename', '')
-        phone = request.POST.get('phone', '')
-        email = request.POST.get('email', '')
-        comment_text = request.POST.get('subject', '')
+        firstname = request.POST.get('firstname', None)
+        lastname = request.POST.get('lastname', None)
+        middlename = request.POST.get('middlename', None)
+        phone = request.POST.get('phone', None)
+        email = request.POST.get('email', None)
+        comment_text = request.POST.get('subject', None)
 
         try:
             city_id = int(request.POST.get('city_id'))
         except TypeError:
             city_id = -1
 
-        query = """INSERT INTO users(last_name, first_name,\
-        middle_name, phone, email, city_id) VALUES(?,?,?,?,?,?)"""
+        query = (
+            "INSERT INTO users(last_name, first_name, middle_name," +
+            " phone, email, city_id) VALUES(?,?,?,?,?,?)"
+        )
 
         params = (lastname, firstname, middlename, phone, email, city_id)
+        print(params)
         app.sql(query, params)
 
         user_id = app.sql('SELECT * FROM users ORDER BY id DESC LIMIT 1;')[0][0]
 
-        query = """INSERT INTO comments(text, user_id) VALUES(?,?)"""
-        params = (comment_text, user_id)
+        now = datetime.datetime.now()
+        query = 'INSERT INTO comments(text, user_id, timestamp) VALUES(?,?,?);'
+        params = (comment_text, user_id, now)
         app.sql(query, params)
 
         redirect = Response(status="302 Found")
@@ -53,9 +58,9 @@ def comment(request):
     return Response(body=html.encode())
 
 
-@app.route('^/api/get/regions/?$')
+@app.route('^/api/regions/get/?$')
 def get_regions(request):
-    query = 'SELECT id, name FROM regions WHERE deleted=0'
+    query = 'SELECT id, name FROM regions WHERE deleted=0;'
     regions = app.sql(query)
     body = json.dumps(dict(regions), ensure_ascii=False)
     response = Response(body=body.encode())
@@ -63,16 +68,27 @@ def get_regions(request):
     return response
 
 
-@app.route('^/api/get/cities/byregion/([0-9]+)/?$')
+@app.route('^/api/cities/get/byregion/([0-9]+)/?$')
 def get_cities_by_region(request):
     region_id = request.params[0]
-    query = 'SELECT id, name FROM cities WHERE region_id=? AND deleted=0'
+    query = 'SELECT id, name FROM cities WHERE region_id=? AND deleted=0;'
     params = (region_id,)
     cities = app.sql(query, params)
     body = json.dumps(dict(cities), ensure_ascii=False)
     response = Response(body=body.encode())
     response.headers['Content-Type'] = 'application/json'
     return response
+
+
+@app.route('^/view/?$')
+def view(request):
+    query = (
+        "SELECT c.id, c.text, c.timestamp, u.first_name, u.last_name" +
+        " FROM comments AS c LEFT JOIN users AS u ON c.user_id=u.id;"
+    )
+    comments = app.sql(query)
+    print(comments)
+    return Response(body='views'.encode())
 
 
 if __name__ == '__main__':
