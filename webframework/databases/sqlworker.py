@@ -19,8 +19,8 @@ class SQLiteWorker(SQLWorker):
                 cursor.execute(query, params)
                 self.conn.commit()
                 return cursor.fetchall()
-        except sqlite3.IntegrityError:
-            print("Error with ", query)
+        except sqlite3.IntegrityError as e:
+            print(e)
         return None
 
     def close(self):
