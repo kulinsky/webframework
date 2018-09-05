@@ -59,7 +59,7 @@ def comment(request):
 
 
 @app.route('^/api/regions/get/?$')
-def get_regions(request):
+def api_get_regions(request):
     query = 'SELECT id, name FROM regions WHERE deleted=0;'
     regions = app.sql(query)
     body = json.dumps(dict(regions), ensure_ascii=False)
@@ -69,7 +69,7 @@ def get_regions(request):
 
 
 @app.route('^/api/cities/get/byregion/([0-9]+)/?$')
-def get_cities_by_region(request):
+def api_get_cities_by_region(request):
     region_id = request.params[0]
     query = 'SELECT id, name FROM cities WHERE region_id=? AND deleted=0;'
     params = (region_id,)
@@ -80,15 +80,39 @@ def get_cities_by_region(request):
     return response
 
 
+@app.route('^/api/comments/get/?$')
+def api_get_comments(request):
+    with_names = request.GET.get('withnames', None)
+    if with_names:
+        try:
+            with_names = int(with_names[0])
+        except ValueError:
+            return Response(
+                status="400 Bad Request",
+                body=b"400 Bad Request."
+            )
+    if with_names:
+        query = (
+            "SELECT c.id, c.text, c.timestamp, u.first_name, u.last_name" +
+            " FROM comments AS c LEFT JOIN users AS u ON c.user_id=u.id;"
+        )
+    else:
+        query = "SELECT * FROM comments WHERE deleted=0;"
+
+    data = app.sql(query)
+    comments = {x[0]:list(x[1:]) for x in data}
+    body = json.dumps(dict(comments), ensure_ascii=False)
+    response = Response(body=body.encode())
+    response.headers['Content-Type'] = 'application/json'
+    return response
+
+
 @app.route('^/view/?$')
 def view(request):
-    query = (
-        "SELECT c.id, c.text, c.timestamp, u.first_name, u.last_name" +
-        " FROM comments AS c LEFT JOIN users AS u ON c.user_id=u.id;"
-    )
-    comments = app.sql(query)
-    print(comments)
-    return Response(body='views'.encode())
+    template = 'comments_list.html'
+    with open('{}{}'.format(TEMPLATE_DIR, template)) as f:
+        html = f.read()
+    return Response(body=html.encode())
 
 
 if __name__ == '__main__':
