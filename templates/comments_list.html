@@ -20,7 +20,7 @@
         }
 
         .inner {
-            width: 90%;
+            width: 100%;
             margin: 0 auto;
         }
 
@@ -79,22 +79,19 @@
 
     <div class="container">
         <div class="inner">
-
+          <div style="font-weight: bold; margin-bottom:10px;">
+              <a onclick="fill_table()" href="#">(Актуальные комментарии)</a>
+              <a onclick="fill_table_deleted()" href="#">(Показать удаленные комментарии)</a>
+          </div>
           <table>
             <tr>
-              <th>№</th>
+              <th>ID</th>
               <th>Комментарий</th>
               <th>Дата</th>
               <th>Автор</th>
-              <th>Действия</th>
+              <th>Действиe</th>
             </tr>
             <tbody id="tbody">
-            <!-- <tr>
-              <td>Alfreds Futterkiste</td>
-              <td>Maria Anders</td>
-              <td>Germany</td>
-            </tr> -->
-
           </tbody>
           </table>
 
@@ -111,9 +108,11 @@
 
                     var data = this.response;
 
-                    var el = document.getElementById('tbody');
+                    var el = document.getElementById("tbody");
+                    el.innerHTML = "";
                     for (var i in data) {
-                        var inner_html = "<tr><td>"+i+"</td><td>"+data[i][0]+"</td><td>"+data[i][1]+"</td><td>"+data[i][2]+" "+data[i][3]+"</td><td>actions</td></tr>";
+                        var str_action = "</td><td> <a href='#' onclick='delete_comment("+i+")' id='comment_"+i+"'>удалить</a> </td></tr>";
+                        var inner_html = "<tr><td>"+i+"</td><td>"+data[i][0]+"</td><td>"+data[i][1]+"</td><td>"+data[i][2]+" "+data[i][3]+str_action;
                         el.innerHTML += inner_html;
                     }
 
@@ -123,48 +122,58 @@
             xhttp.send();
         }
 
-        // scan the page for labels, and assign a reference to the label from the actual form element
-        // var labels = document.getElementsByTagName('LABEL');
-        // for (var i = 0; i < labels.length; i++) {
-        //     if (labels[i].htmlFor != '') {
-        //         var el = document.getElementById(labels[i].htmlFor);
-        //         if (el)
-        //             el.label = labels[i];
-        //     }
-        // }
-        // var validate_phone = function(phone) {
-        //     var re = /^\({1}[0-9]{3,4}\){1}[\s\-]?[0-9]{3}[\s\-]?[0-9]{2}[\s\-]?[0-9]{2}$/;
-        //     return re.test(String(phone).toLowerCase());
-        // }
-        //
-        // var validate_email = function(email) {
-        //     var re = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
-        //     return re.test(String(email).toLowerCase());
-        // }
-        //
-        // var email_onkeyup = function(e) {
-        //     if (validate_email(e.target.value)) {
-        //         e.target.label.classList.replace('invalid', 'valid');
-        //     } else {
-        //         e.target.label.classList.replace('valid', 'invalid');
-        //     }
-        // }
-        //
-        // var phone_onkeyup = function(e) {
-        //     if (validate_phone(e.target.value)) {
-        //         e.target.label.classList.replace('invalid', 'valid');
-        //     } else {
-        //         e.target.label.classList.replace('valid', 'invalid');
-        //     }
-        // }
-        //
-        // var text_onkeyup = function(e) {
-        //     if (e.target.value.length >= 3) {
-        //         e.target.label.classList.replace('invalid', 'valid');
-        //     } else {
-        //         e.target.label.classList.replace('valid', 'invalid');
-        //     }
-        // }
+        var fill_table_deleted = function() {
+            var xhttp = new XMLHttpRequest();
+            xhttp.responseType = "json";
+            xhttp.onreadystatechange = function() {
+                if (this.readyState == 4 && this.status == 200) {
+                    var data = this.response;
+                    var el = document.getElementById("tbody");
+                    el.innerHTML = "";
+                    for (var i in data) {
+                        var str_action = "</td><td> <a href='#' onclick='delete_comment_from_db("+i+")' id='comment_"+i+"'>удалить из БД</a> </td></tr>";
+                        var inner_html = "<tr><td>"+i+"</td><td>"+data[i][0]+"</td><td>"+data[i][1]+"</td><td>"+data[i][2]+" "+data[i][3]+str_action;
+                        el.innerHTML += inner_html;
+                    }
+                }
+            };
+            xhttp.open("GET", "/api/comments/get/?withnames=1&deleted=1", true);
+            xhttp.send();
+        }
+
+        var URL_DELETE = '/api/comments/delete/';
+        var URL_DELETE_FROM_DB = '/api/comments/delete/full/';
+
+        var ajax_delete = function(id, url, f, msg) {
+            var body = 'id=' + encodeURIComponent(id);
+
+            if (confirm(msg + id)) {
+                var xhttp = new XMLHttpRequest();
+                xhttp.responseType = "json";
+                xhttp.onreadystatechange = function() {
+                    if (this.readyState == 4 && this.status == 200) {
+                        var data = this.response;
+                        if (data['success']) {
+                            f();
+                        } else {
+                            alert('Ошибка при удалении');
+                        }
+                    }
+                };
+                xhttp.open("POST", url, true);
+                xhttp.send(body);
+            }
+        }
+
+        var delete_comment = function(id) {
+            ajax_delete(id, URL_DELETE, fill_table, 'Удалить комментарий ');
+        }
+
+        var delete_comment_from_db = function(id) {
+            ajax_delete(id, URL_DELETE_FROM_DB, fill_table_deleted, 'Удалить комментарий из Базы Данных ');
+        }
+
+
 
         window.onload = function() {
 
@@ -172,6 +181,7 @@
             fill_table();
 
         }
+
     </script>
 </body>
 
