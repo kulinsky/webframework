@@ -50,9 +50,17 @@ def comment(request):
         app.sql(query, params)
 
         redirect = Response(status="302 Found")
-        redirect.headers["Location"] = "/"
+        redirect.headers["Location"] = "/view/"
         return redirect
 
+    with open('{}{}'.format(TEMPLATE_DIR, template)) as f:
+        html = f.read()
+    return Response(body=html.encode())
+
+
+@app.route('^/view/?$')
+def view(request):
+    template = 'comments_list.html'
     with open('{}{}'.format(TEMPLATE_DIR, template)) as f:
         html = f.read()
     return Response(body=html.encode())
@@ -170,21 +178,25 @@ def api_delete_comments(request):
         except ValueError:
             return bad_request  # RETURN 500
 
+        # find user_id and delete user
+        query = "SELECT user_id FROM comments WHERE id=?"
+        params = (comment_id,)
+        user_id = app.sql(query, params)[1][0][0]
+
+        # delete comment from db
         query = "DELETE FROM comments WHERE id=?"
         params = (comment_id,)
-        result = app.sql(query, params)[0]
-        body = json.dumps({'success': bool(result)})
+        res_c = app.sql(query, params)[0]
+
+        # delete user from db
+        query = "DELETE FROM users WHERE id=?"
+        params = (user_id,)
+        res_u = app.sql(query, params)[0]
+
+        body = json.dumps({'success': bool(res_c and res_u)})
         response = Response(body=body.encode())
         response.headers['Content-Type'] = 'application/json'
         return response
-
-
-@app.route('^/view/?$')
-def view(request):
-    template = 'comments_list.html'
-    with open('{}{}'.format(TEMPLATE_DIR, template)) as f:
-        html = f.read()
-    return Response(body=html.encode())
 
 
 if __name__ == '__main__':
