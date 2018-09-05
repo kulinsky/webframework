@@ -151,7 +151,7 @@
                     }
                 }
             };
-            xhttp.open("GET", "/api/get/cities/byregion/" + region_id, true);
+            xhttp.open("GET", "/api/cities/get/byregion/" + region_id, true);
             xhttp.send();
         }
 
@@ -170,7 +170,7 @@
                     fill_cities(region_id);
                 }
             };
-            xhttp.open('GET', '/api/get/regions/', true);
+            xhttp.open('GET', '/api/regions/get/', true);
             xhttp.send();
         }
         // scan the page for labels, and assign a reference to the label from the actual form element
