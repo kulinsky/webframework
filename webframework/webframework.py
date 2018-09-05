@@ -13,7 +13,7 @@ class Request:
         self.method = environ['REQUEST_METHOD']
         self.headers = {k: v for k, v in environ.items() if k.startswith("HTTP_")}
         self.params = None
-        self.GET = parse_qs(environ["QUERY_STRING"])
+        self.GET = {k:v[0] for k,v in parse_qs(environ["QUERY_STRING"]).items()}
         self.POST = {}
 
         if self.method == "POST":
