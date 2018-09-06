@@ -84,7 +84,7 @@
               <th>Регион</th>
               <th>Количество</th>
             </tr>
-            <tbody id="tbody">
+            <tbody id="tbody_region">
           </tbody>
           </table>
 
@@ -94,7 +94,14 @@
     <script>
 
         var render_page = function(data) {
-            var el = document.getElementById("tbody");
+            render_region_table(data);
+            for (var i in data) {
+                render_city_table(i);
+            }
+        }
+
+        var render_region_table = function(data) {
+            var el = document.getElementById("tbody_region");
             el.innerHTML = "";
             for (var i in data) {
                 var sum = 0;
@@ -106,6 +113,10 @@
                     el.innerHTML += inner_html;
                 }
             }
+        }
+
+        var render_city_table = function(data) {
+            return NaN;
         }
 
         var get_statistiscs = function() {
