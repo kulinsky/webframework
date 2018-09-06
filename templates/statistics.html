@@ -107,23 +107,21 @@
                     sum += data[i][j];
                 }
                 if (sum >= 5) {
-                    var region_id = "region_" + id;
-                    var region_href = '<a id="' + region_id + '" href="#">' + i + '</a>';
+                    var region_href = '<a href="#R' + id + '">' + i + '</a>';
                     var inner_html = "<tr><td>"+region_href+"</td><td>"+sum+"</td></tr>";
                     el.innerHTML += inner_html;
+                    render_cities_table(i, data[i], id);
                     id += 1;
-                    render_cities_table(i, data[i], region_id);
                 }
             }
         }
 
         var render_cities_table = function(region, cities, region_id) {
-            console.log(region, cities, region_id);
             var table_element = document.createElement('table');
+            table_element.id = "R" + region_id;
             var thead = table_element.createTHead();
             thead.innerText = region;
             tbody = table_element.createTBody();
-            tbody.id = region_id;
             for (var i in cities){
                 inner_html = '<tr><td>'+i+'</td><td>'+cities[i]+'</td></tr>';
                 tbody.innerHTML += inner_html;
