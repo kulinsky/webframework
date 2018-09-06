@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta charset="utf-8">
+    <style>
+        body {
+            font-family: Arial, Helvetica, sans-serif;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        .container {
+            border-radius: 5px;
+            background-color: #f2f2f2;
+            padding: 20px;
+        }
+
+        .inner {
+            width: 100%;
+            margin: 0 auto;
+        }
+
+        .wrapper {
+            display: flex;
+        }
+
+        .wrapper > div {
+            /* font-size: 4vh; */
+            color: white;
+            background: black;
+            margin: .1em;
+            padding-left: 1em;
+            /* border-radius: 3px; */
+            flex: 1;
+        }
+
+        .menu {
+            padding: 1em;
+        }
+
+        .menu > a {
+            color: white;
+            text-decoration: none;
+            padding-left: 1em;
+        }
+
+        table {
+            font-family: arial, sans-serif;
+            border-collapse: collapse;
+            width: 100%;
+        }
+
+        td, th {
+            border: 1px solid #dddddd;
+            text-align: left;
+            padding: 8px;
+        }
+
+        tr:nth-child(even) {
+            background-color: #dddddd;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="wrapper">
+        <div class="menu">
+            <a href="/">Home</a>
+            <a href="/comment/">Comment</a>
+            <a href="/view/">View</a>
+            <a href="/stat/">Stat</a>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="inner">
+          <div style="font-weight: bold; margin-bottom:10px;">
+              <a onclick="fill_table()" href="#">(Актуальные комментарии)</a>
+              <a onclick="fill_table_deleted()" href="#">(Показать удаленные комментарии)</a>
+          </div>
+          <table>
+            <tr>
+              <th>ID</th>
+              <th>Комментарий</th>
+              <th>Дата</th>
+              <th>Автор</th>
+              <th>Город</th>
+              <th>Действиe</th>
+            </tr>
+            <tbody id="tbody">
+          </tbody>
+          </table>
+
+        </div>
+    </div>
+
+    <script>
+
+        var fill_table = function() {
+            var xhttp = new XMLHttpRequest();
+            xhttp.responseType = "json";
+            xhttp.onreadystatechange = function() {
+                if (this.readyState == 4 && this.status == 200) {
+
+                    var data = this.response;
+
+                    var el = document.getElementById("tbody");
+                    el.innerHTML = "";
+                    for (var i in data) {
+                        var str_action = "</td><td> <a href='#' onclick='delete_comment("+i+")' id='comment_"+i+"'>удалить</a> </td></tr>";
+                        var inner_html = "<tr><td>"+i+"</td><td>"+data[i][0]+"</td><td>"+data[i][1]+"</td><td>"+data[i][2]+" "+data[i][3]+"</td><td>"+data[i][4]+str_action;
+                        el.innerHTML += inner_html;
+                    }
+
+                }
+            };
+            xhttp.open("GET", "/api/comments/get/", true);
+            xhttp.send();
+        }
+
+        window.onload = function() {
+
+            console.log('page loaded');
+
+        }
+
+    </script>
+</body>
+
+</html>
