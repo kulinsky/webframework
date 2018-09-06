@@ -126,25 +126,19 @@ def api_get_comments(request):
 def api_delete_comments(request):
     if request.method == 'POST':
 
-        bad_request = Response(
-            status="400 Bad Request",
-            body=b"400 Bad Request."
-        )
-
         comment_id = request.POST.get('id', None)
 
         if not comment_id:
-            return bad_request  # RETURN 500
+            return app.bad_request()  # RETURN 400
 
         try:
             comment_id = int(comment_id)
         except ValueError:
-            return bad_request  # RETURN 500
+            return app.bad_request()  # RETURN 400
 
         # find user_id and mark as deleted user
         query = "SELECT user_id FROM comments WHERE id=?"
         params = (comment_id,)
-        print(query, params)
         user_id = app.sql(query, params)[1][0][0]
 
         # mark comment as deleted
@@ -157,9 +151,7 @@ def api_delete_comments(request):
         params = (user_id,)
         res_u = app.sql(query, params)[0]
 
-        body = json.dumps({'success': bool(res_c and res_u)})
-        response = Response(body=body.encode())
-        response.headers['Content-Type'] = 'application/json'
+        response = Response.as_json({'success': bool(res_c and res_u)})
         return response
 
 
@@ -167,15 +159,15 @@ def api_delete_comments(request):
 def api_delete_comments_from_db(request):
     if request.method == 'POST':
 
-        comment_id = request.POST.get('id', None)
+        comment_id = request.POST.get('id')
 
         if not comment_id:
-            return app.bad_request()  # RETURN 500
+            return app.bad_request()  # RETURN 400
 
         try:
             comment_id = int(comment_id)
         except ValueError:
-            return app.bad_request()  # RETURN 500
+            return app.bad_request()  # RETURN 400
 
         # find user_id and delete user
         query = "SELECT user_id FROM comments WHERE id=?"
@@ -192,9 +184,7 @@ def api_delete_comments_from_db(request):
         params = (user_id,)
         res_u = app.sql(query, params)[0]
 
-        body = json.dumps({'success': bool(res_c and res_u)})
-        response = Response(body=body.encode())
-        response.headers['Content-Type'] = 'application/json'
+        response = Response.as_json({'success': bool(res_c and res_u)})
         return response
 
 
@@ -219,9 +209,7 @@ def api_statistics(request):
         else:
             result[region_name] = {city_name: records_count}
 
-    body = json.dumps(result, ensure_ascii=False)
-    response = Response(body=body.encode())
-    response.headers['Content-Type'] = 'application/json'
+    response = Response.as_json(result)
     return response
 
 
