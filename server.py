@@ -56,7 +56,6 @@ def comment(request):
         )
 
         params = (lastname, firstname, middlename, phone, email, city_id)
-        print(params)
         # Save user to db
         app.sql(query, params)
 
