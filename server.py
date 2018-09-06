@@ -84,9 +84,7 @@ def view(request):
 def api_get_regions(request):
     query = 'SELECT id, name FROM regions WHERE deleted=0;'
     regions = app.sql(query)[1]
-    body = json.dumps(dict(regions), ensure_ascii=False)
-    response = Response(body=body.encode())
-    response.headers['Content-Type'] = 'application/json'
+    response = Response.as_json(dict(regions))
     return response
 
 
@@ -96,9 +94,7 @@ def api_get_cities_by_region(request):
     query = 'SELECT id, name FROM cities WHERE region_id=? AND deleted=0;'
     params = (region_id,)
     cities = app.sql(query, params)[1]
-    body = json.dumps(dict(cities), ensure_ascii=False)
-    response = Response(body=body.encode())
-    response.headers['Content-Type'] = 'application/json'
+    response = Response.as_json(dict(cities))
     return response
 
 
@@ -110,25 +106,19 @@ def api_get_comments(request):
         try:
             deleted = int(deleted)
         except ValueError:
-            # RETURN ERROR 400
-            return Response(
-                status="400 Bad Request",
-                body=b"400 Bad Request."
-            )
+            return app.bad_request() # RETURN ERROR 400
 
     query = (
-        "SELECT c.id, c.text, c.timestamp, u.first_name, u.last_name, city.name"
-        " FROM (SELECT * FROM comments WHERE deleted=?) c"
-        " LEFT JOIN users u, cities city"
-        " ON c.user_id=u.id AND u.city_id=city.id;"
+        "SELECT c.id, c.text, c.timestamp, u.first_name, u.last_name, city.name "
+        "FROM (SELECT * FROM comments WHERE deleted=?) c "
+        "LEFT JOIN users u, cities city "
+        "ON c.user_id=u.id AND u.city_id=city.id;"
     )
 
     params = (deleted,)
     data = app.sql(query, params)[1]
     comments = {x[0]:list(x[1:]) for x in data}
-    body = json.dumps(dict(comments), ensure_ascii=False)
-    response = Response(body=body.encode())
-    response.headers['Content-Type'] = 'application/json'
+    response = Response.as_json(comments)
     return response
 
 
@@ -177,20 +167,15 @@ def api_delete_comments(request):
 def api_delete_comments_from_db(request):
     if request.method == 'POST':
 
-        bad_request = Response(
-            status="400 Bad Request",
-            body=b"400 Bad Request."
-        )
-
         comment_id = request.POST.get('id', None)
 
         if not comment_id:
-            return bad_request  # RETURN 500
+            return app.bad_request()  # RETURN 500
 
         try:
             comment_id = int(comment_id)
         except ValueError:
-            return bad_request  # RETURN 500
+            return app.bad_request()  # RETURN 500
 
         # find user_id and delete user
         query = "SELECT user_id FROM comments WHERE id=?"
