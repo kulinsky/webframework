@@ -7,6 +7,8 @@ from .databases.sqlworker import SQLWorker, SQLiteWorker
 
 
 class Request:
+    """ Class for extract value from environ,
+    headers extracts from environ values like HTTP_ """
     def __init__(self, environ):
         self.environ = environ
         self.path = environ["PATH_INFO"]
@@ -37,6 +39,7 @@ class Response:
 
     @property
     def wsgi_headers(self):
+        """ return headers as a list of tuples """
         return [(k, v) for k, v in self.headers.items()]
 
 

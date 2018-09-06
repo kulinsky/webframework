@@ -137,6 +137,7 @@
             }
         }
 
+        // fill cities select
         var fill_cities = function(region_id) {
             var xhttp = new XMLHttpRequest();
             xhttp.responseType = "json";
@@ -154,6 +155,7 @@
             xhttp.send();
         }
 
+        // Fill region select
         var fill_regions = function() {
             var xhttp = new XMLHttpRequest();
             xhttp.responseType = 'json';
@@ -172,7 +174,7 @@
             xhttp.open('GET', '/api/regions/get/', true);
             xhttp.send();
         }
-        
+
         window.onload = function() {
 
             console.log('page loaded');

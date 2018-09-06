@@ -43,6 +43,7 @@ def comment(request):
 
         params = (lastname, firstname, middlename, phone, email, city_id)
         print(params)
+        # Save user to db
         app.sql(query, params)
 
         user_id = app.sql('SELECT * FROM users ORDER BY id DESC LIMIT 1;')[1][0][0]
@@ -50,8 +51,10 @@ def comment(request):
         now = datetime.datetime.now()
         query = 'INSERT INTO comments(text, user_id, timestamp) VALUES(?,?,?);'
         params = (comment_text, user_id, now)
+        # Save comment to db
         app.sql(query, params)
 
+        # Redirect to /view/
         redirect = Response(status="302 Found")
         redirect.headers["Location"] = "/view/"
         return redirect

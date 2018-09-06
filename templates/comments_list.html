@@ -28,12 +28,10 @@
         }
 
         .wrapper > div {
-            /* font-size: 4vh; */
             color: white;
             background: black;
             margin: .1em;
             padding-left: 1em;
-            /* border-radius: 3px; */
             flex: 1;
         }
 
@@ -145,6 +143,7 @@
         var URL_DELETE = '/api/comments/delete/';
         var URL_DELETE_FROM_DB = '/api/comments/delete/full/';
 
+        // Send post ajax request to delete comment
         var ajax_delete = function(id, url, f, msg) {
             var body = 'id=' + encodeURIComponent(id);
 
@@ -166,10 +165,12 @@
             }
         }
 
+        // Mark comment as deleted
         var delete_comment = function(id) {
             ajax_delete(id, URL_DELETE, fill_table, 'Удалить комментарий ');
         }
 
+        // Delete comment from db
         var delete_comment_from_db = function(id) {
             ajax_delete(id, URL_DELETE_FROM_DB, fill_table_deleted, 'Удалить комментарий из Базы Данных ');
         }
