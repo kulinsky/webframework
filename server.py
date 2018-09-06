@@ -174,7 +174,7 @@ def api_delete_comments(request):
 
 
 @app.route('^/api/comments/delete/full/?$')
-def api_delete_comments(request):
+def api_delete_comments_from_db(request):
     if request.method == 'POST':
 
         bad_request = Response(
