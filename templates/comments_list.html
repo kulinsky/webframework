@@ -89,6 +89,7 @@
               <th>Комментарий</th>
               <th>Дата</th>
               <th>Автор</th>
+              <th>Город</th>
               <th>Действиe</th>
             </tr>
             <tbody id="tbody">
@@ -112,13 +113,13 @@
                     el.innerHTML = "";
                     for (var i in data) {
                         var str_action = "</td><td> <a href='#' onclick='delete_comment("+i+")' id='comment_"+i+"'>удалить</a> </td></tr>";
-                        var inner_html = "<tr><td>"+i+"</td><td>"+data[i][0]+"</td><td>"+data[i][1]+"</td><td>"+data[i][2]+" "+data[i][3]+str_action;
+                        var inner_html = "<tr><td>"+i+"</td><td>"+data[i][0]+"</td><td>"+data[i][1]+"</td><td>"+data[i][2]+" "+data[i][3]+"</td><td>"+data[i][4]+str_action;
                         el.innerHTML += inner_html;
                     }
 
                 }
             };
-            xhttp.open("GET", "/api/comments/get/?withnames=1", true);
+            xhttp.open("GET", "/api/comments/get/", true);
             xhttp.send();
         }
 
@@ -132,12 +133,13 @@
                     el.innerHTML = "";
                     for (var i in data) {
                         var str_action = "</td><td> <a href='#' onclick='delete_comment_from_db("+i+")' id='comment_"+i+"'>удалить из БД</a> </td></tr>";
-                        var inner_html = "<tr><td>"+i+"</td><td>"+data[i][0]+"</td><td>"+data[i][1]+"</td><td>"+data[i][2]+" "+data[i][3]+str_action;
+                        var inner_html = "<tr><td>"+i+"</td><td>"+data[i][0]+"</td><td>"+data[i][1]+"</td><td>"+data[i][2]+" "+data[i][3]+"</td><td>"+data[i][4]+str_action;
+                        // var inner_html = "<tr><td>"+i+"</td><td>"+data[i][0]+"</td><td>"+data[i][1]+"</td><td>"+data[i][2]+" "+data[i][3]+str_action;
                         el.innerHTML += inner_html;
                     }
                 }
             };
-            xhttp.open("GET", "/api/comments/get/?withnames=1&deleted=1", true);
+            xhttp.open("GET", "/api/comments/get/?deleted=1", true);
             xhttp.send();
         }
 
