@@ -199,6 +199,31 @@ def api_delete_comments(request):
         return response
 
 
+@app.route('^/api/statistics/?$')
+def api_statistics(request):
+    query = (
+        "SELECT    c.id, c.name, c.region_id, COUNT(u.id), r.name "
+        "FROM      (SELECT * FROM cities WHERE deleted=0) c "
+        "LEFT JOIN (SELECT * FROM users WHERE deleted=0) u, "
+        "          (SELECT * FROM regions WHERE deleted=0) r "
+        "ON        u.city_id = c.id "
+        "AND       c.region_id = r.id "
+        "GROUP BY  c.id"
+    )
+    data = app.sql(query)[1]
+
+    res = {}
+    for d in data:
+        if d[4] in res.keys():
+            res[d[4]].update({d[1]:d[3]})
+        else:
+            res[d[4]] = {d[1]:d[3]}
+    body = json.dumps(dict(res), ensure_ascii=False)
+    response = Response(body=body.encode())
+    response.headers['Content-Type'] = 'application/json'
+    return response
+
+
 if __name__ == '__main__':
     try:
         httpd = make_server('', 8000, app)
