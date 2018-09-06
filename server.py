@@ -66,6 +66,14 @@ def view(request):
     return Response(body=html.encode())
 
 
+@app.route('^/stat/?$')
+def view(request):
+    template = 'statistics.html'
+    with open('{}{}'.format(TEMPLATE_DIR, template)) as f:
+        html = f.read()
+    return Response(body=html.encode())
+
+
 @app.route('^/api/regions/get/?$')
 def api_get_regions(request):
     query = 'SELECT id, name FROM regions WHERE deleted=0;'
