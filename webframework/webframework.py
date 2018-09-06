@@ -1,6 +1,7 @@
 import sys
 import re
 import traceback
+import json
 from urllib.parse import parse_qs
 
 from .databases.sqlworker import SQLWorker, SQLiteWorker
@@ -42,6 +43,12 @@ class Response:
         """ return headers as a list of tuples """
         return [(k, v) for k, v in self.headers.items()]
 
+    @classmethod
+    def as_json(cls, data):
+        response = cls(body=json.dumps(data, ensure_ascii=False).encode())
+        response.headers['Content-Type'] = 'application/json'
+        return response
+
 
 class WebFramework:
     def __init__(self, sqlworker=None):
@@ -74,6 +81,13 @@ class WebFramework:
         return Response(
             status="500 Internal Server Error",
             body=b"An error has occurred."
+        )
+
+    @staticmethod
+    def bad_request():
+        return Response(
+            status="400 Bad Request",
+            body=b"400 Bad Request."
         )
 
     def dispatch(self, request):
