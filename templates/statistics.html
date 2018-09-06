@@ -101,13 +101,19 @@
 
     <script>
 
-        var fill_table = function() {
+        var render_page = function(data) {
+            return none; // TO DO
+        }
+
+        var get_statistiscs = function() {
             var xhttp = new XMLHttpRequest();
             xhttp.responseType = "json";
             xhttp.onreadystatechange = function() {
                 if (this.readyState == 4 && this.status == 200) {
 
                     var data = this.response;
+
+                    render_page(data);
 
                     var el = document.getElementById("tbody");
                     el.innerHTML = "";
@@ -119,7 +125,7 @@
 
                 }
             };
-            xhttp.open("GET", "/api/comments/get/", true);
+            xhttp.open("GET", "/api/statistics/", true);
             xhttp.send();
         }
 
