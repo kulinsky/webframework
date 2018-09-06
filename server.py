@@ -1,27 +1,41 @@
-import os
+# import os
 import json
 import datetime
+from pathlib import Path
 from wsgiref.simple_server import make_server
 
 from webframework.webframework import WebFramework, Response
 
 
-TEMPLATE_DIR = '{}/templates/'.format(os.getcwd())
+TEMPLATE_DIR = Path('templates')
+TMPL_HOME = TEMPLATE_DIR / 'home.html'
+TMPL_VIEW = TEMPLATE_DIR / 'comments_list.html'
+TMPL_COMMENT = TEMPLATE_DIR / 'comment.html'
+TMPL_STAT = TEMPLATE_DIR / 'statistics.html'
+
+with TMPL_HOME.open() as f:
+    TEMPLATE_HOME = f.read()
+
+with TMPL_VIEW.open() as f:
+    TEMPLATE_VIEW = f.read()
+
+with TMPL_COMMENT.open() as f:
+    TEMPLATE_COMMENT = f.read()
+
+with TMPL_STAT.open() as f:
+    TEMPLATE_STAT = f.read()
+
 
 app = WebFramework()
 
 
 @app.route('^/$')
 def home(request):
-    template = 'home.html'
-    with open('{}{}'.format(TEMPLATE_DIR, template)) as f:
-        html = f.read()
-    return Response(body=html.encode())
+    return Response(body=TEMPLATE_HOME.encode())
 
 
 @app.route('^/comment/?$')
 def comment(request):
-    template = 'comment.html'
 
     if request.method == 'POST':
         firstname = request.POST.get('firstname', None)
@@ -59,25 +73,17 @@ def comment(request):
         redirect.headers["Location"] = "/view/"
         return redirect
 
-    with open('{}{}'.format(TEMPLATE_DIR, template)) as f:
-        html = f.read()
-    return Response(body=html.encode())
+    return Response(body=TEMPLATE_COMMENT.encode())
 
 
 @app.route('^/view/?$')
 def view(request):
-    template = 'comments_list.html'
-    with open('{}{}'.format(TEMPLATE_DIR, template)) as f:
-        html = f.read()
-    return Response(body=html.encode())
+    return Response(body=TEMPLATE_VIEW.encode())
 
 
 @app.route('^/stat/?$')
 def view(request):
-    template = 'statistics.html'
-    with open('{}{}'.format(TEMPLATE_DIR, template)) as f:
-        html = f.read()
-    return Response(body=html.encode())
+    return Response(body=TEMPLATE_STAT.encode())
 
 
 @app.route('^/api/regions/get/?$')
