@@ -13,7 +13,10 @@ app = WebFramework()
 
 @app.route('^/$')
 def home(request):
-    return Response(body='Home'.encode())
+    template = 'home.html'
+    with open('{}{}'.format(TEMPLATE_DIR, template)) as f:
+        html = f.read()
+    return Response(body=html.encode())
 
 
 @app.route('^/comment/?$')
