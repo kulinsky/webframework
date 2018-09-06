@@ -117,7 +117,7 @@ def api_get_comments(request):
 
     params = (deleted,)
     data = app.sql(query, params)[1]
-    comments = {x[0]:list(x[1:]) for x in data}
+    comments = {k:v for k, *v in data}
     response = Response.as_json(comments)
     return response
 
