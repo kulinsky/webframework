@@ -215,8 +215,9 @@ def api_delete_comments_from_db(request):
 
 @app.route('^/api/statistics/?$')
 def api_statistics(request):
+
     query = (
-        "SELECT    c.id, c.name, c.region_id, COUNT(u.id), r.name "
+        "SELECT    c.name, COUNT(u.id), r.name "
         "FROM      (SELECT * FROM cities WHERE deleted=0) c "
         "LEFT JOIN (SELECT * FROM users WHERE deleted=0) u, "
         "          (SELECT * FROM regions WHERE deleted=0) r "
@@ -226,13 +227,14 @@ def api_statistics(request):
     )
     data = app.sql(query)[1]
 
-    res = {}
-    for d in data:
-        if d[4] in res.keys():
-            res[d[4]].update({d[1]:d[3]})
+    result = {}
+    for city_name, records_count, region_name in data:
+        if region_name in result:
+            result[region_name].update({city_name: records_count})
         else:
-            res[d[4]] = {d[1]:d[3]}
-    body = json.dumps(dict(res), ensure_ascii=False)
+            result[region_name] = {city_name: records_count}
+
+    body = json.dumps(result, ensure_ascii=False)
     response = Response(body=body.encode())
     response.headers['Content-Type'] = 'application/json'
     return response
