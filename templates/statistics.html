@@ -51,6 +51,7 @@
             font-family: arial, sans-serif;
             border-collapse: collapse;
             width: 100%;
+            margin-bottom: 50px;
         }
 
         td, th {
@@ -77,12 +78,11 @@
     </div>
 
     <div class="container">
-        <div class="inner">
+        <div class="inner" id="inner_div">
           <table>
             <tr>
-              <!-- <th>#</th> -->
               <th>Регион</th>
-              <th>Количество</th>
+              <th>Количество комментариев</th>
             </tr>
             <tbody id="tbody_region">
           </tbody>
@@ -95,28 +95,41 @@
 
         var render_page = function(data) {
             render_region_table(data);
-            for (var i in data) {
-                render_city_table(i);
-            }
         }
 
         var render_region_table = function(data) {
             var el = document.getElementById("tbody_region");
             el.innerHTML = "";
+            var id = 0;
             for (var i in data) {
                 var sum = 0;
                 for (var j in data[i]) {
                     sum += data[i][j];
                 }
                 if (sum >= 5) {
-                    var inner_html = "<tr><td>"+i+"</td><td>"+sum+"</td></tr>";
+                    var region_id = "region_" + id;
+                    var region_href = '<a id="' + region_id + '" href="#">' + i + '</a>';
+                    var inner_html = "<tr><td>"+region_href+"</td><td>"+sum+"</td></tr>";
                     el.innerHTML += inner_html;
+                    id += 1;
+                    render_cities_table(i, data[i], region_id);
                 }
             }
         }
 
-        var render_city_table = function(data) {
-            return NaN;
+        var render_cities_table = function(region, cities, region_id) {
+            console.log(region, cities, region_id);
+            var table_element = document.createElement('table');
+            var thead = table_element.createTHead();
+            thead.innerText = region;
+            tbody = table_element.createTBody();
+            tbody.id = region_id;
+            for (var i in cities){
+                inner_html = '<tr><td>'+i+'</td><td>'+cities[i]+'</td></tr>';
+                tbody.innerHTML += inner_html;
+            }
+            var parent = document.getElementById('inner_div');
+            parent.insertBefore(table_element, parent.lastChild);
         }
 
         var get_statistiscs = function() {
