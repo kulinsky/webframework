@@ -90,36 +90,24 @@ def api_get_cities_by_region(request):
 
 @app.route('^/api/comments/get/?$')
 def api_get_comments(request):
-    with_names = request.GET.get('withnames', None)
     deleted = request.GET.get('deleted', 0)
-    check_variables = True
-
-    if with_names:
-        try:
-            with_names = int(with_names)
-        except ValueError:
-            check_variables = False
 
     if deleted:
         try:
             deleted = int(deleted)
         except ValueError:
-            check_variables = False
+            # RETURN ERROR 400
+            return Response(
+                status="400 Bad Request",
+                body=b"400 Bad Request."
+            )
 
-    if not check_variables:
-        return Response(
-            status="400 Bad Request",
-            body=b"400 Bad Request."
-        )
-
-    if with_names:
-        query = (
-            "SELECT c.id, c.text, c.timestamp, u.first_name, u.last_name"
-            " FROM (SELECT * FROM comments WHERE deleted=?) c"
-            " LEFT JOIN users u ON c.user_id=u.id;"
-        )
-    else:
-        query = "SELECT * FROM comments WHERE deleted=?;"
+    query = (
+        "SELECT c.id, c.text, c.timestamp, u.first_name, u.last_name, city.name"
+        " FROM (SELECT * FROM comments WHERE deleted=?) c"
+        " LEFT JOIN users u, cities city"
+        " ON c.user_id=u.id AND u.city_id=city.id;"
+    )
 
     params = (deleted,)
     data = app.sql(query, params)[1]
