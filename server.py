@@ -1,4 +1,3 @@
-# import os
 import json
 import datetime
 from pathlib import Path
@@ -81,7 +80,7 @@ def view(request):
 
 
 @app.route('^/stat/?$')
-def view(request):
+def stat(request):
     return Response(body=TEMPLATE_STAT.encode())
 
 
