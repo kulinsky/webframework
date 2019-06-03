@@ -103,5 +103,6 @@ class WebFramework:
                     return self.internal_error()
         return self.not_found()
 
-    def sql(self, query, params={}):
+    def sql(self, query, params=None):
+        params = params or {}
         return self._sqlworker.sql(query, params)
