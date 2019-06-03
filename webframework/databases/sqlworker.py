@@ -16,7 +16,8 @@ class SQLiteWorker(SQLWorker):
         import sqlite3
         self.conn = sqlite3.connect(filename)
 
-    def sql(self, query, params={}):
+    def sql(self, query, params=None):
+        params = params or {}
         try:
             with closing(self.conn.cursor()) as cursor:
                 cursor.execute(query, params)
