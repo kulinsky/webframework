@@ -5,9 +5,9 @@ from abc import ABC, abstractmethod
 class SQLWorker(ABC):
     @abstractmethod
     def sql(self):
-        """ return tuple(status, list of tuples of values)
-        status: 1 - success, 0 - fail
-        ex.: (1, [('user1','city1'),('user2','city2')] ) """
+        """ return tuple(rowcount, list of tuples of values)
+        ex.: (2, [('user1','city1'),('user2','city2')] )
+        """
         pass
 
 
